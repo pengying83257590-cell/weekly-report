@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>周会数据看板</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0a0a0f;color:#e0e0e0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;padding:20px;max-width:1200px;margin:0 auto}
+h1{text-align:center;font-size:28px;background:linear-gradient(135deg,#d4af37,#f5d060);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px}
+.subtitle{text-align:center;color:#888;font-size:14px;margin-bottom:30px}
+.section{background:#14141f;border:1px solid #2a2a3a;border-radius:12px;padding:20px;margin-bottom:20px}
+.section-title{font-size:18px;font-weight:700;color:#d4af37;margin-bottom:15px;display:flex;align-items:center;gap:8px}
+.section-title::before{content:'';display:inline-block;width:4px;height:20px;background:linear-gradient(180deg,#d4af37,#f5d060);border-radius:2px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:#1a1a2e;color:#d4af37;padding:10px 8px;text-align:right;border-bottom:2px solid #d4af37;font-weight:600}
+th:first-child,th:nth-child(2){text-align:left}
+td{padding:8px;text-align:right;border-bottom:1px solid #1e1e2e}
+td:first-child,td:nth-child(2){text-align:left;color:#aaa}
+tr:hover td{background:#1a1a2e}
+tr.target-row td{font-weight:700;color:#f5d060}
+tr.total-row td{font-weight:700;color:#fff;border-top:2px solid #333}
+tr.rate-row td{color:#4ecdc4}
+.negative{color:#ff6b6b}
+.positive{color:#4ecdc4}
+.progress-bar{width:100%;height:6px;background:#1e1e2e;border-radius:3px;overflow:hidden;margin-top:4px}
+.progress-fill{height:100%;background:linear-gradient(90deg,#d4af37,#f5d060);border-radius:3px;transition:width 0.5s}
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:15px;margin-bottom:20px}
+.kpi-card{background:#1a1a2e;border:1px solid #2a2a3a;border-radius:8px;padding:15px;text-align:center}
+.kpi-value{font-size:24px;font-weight:700;background:linear-gradient(135deg,#d4af37,#f5d060);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.kpi-label{font-size:12px;color:#888;margin-top:4px}
+.actions{text-align:center;margin:30px 0}
+.btn{display:inline-block;padding:12px 28px;background:linear-gradient(135deg,#d4af37,#f5d060);color:#0a0a0f;font-weight:700;border:none;border-radius:8px;cursor:pointer;font-size:14px;text-decoration:none;margin:0 8px}
+.btn:hover{opacity:0.9}
+.btn-outline{background:transparent;border:2px solid #d4af37;color:#d4af37}
+.btn-outline:hover{background:#d4af37;color:#0a0a0f}
+.note{background:#1a1a1e;border-left:3px solid #d4af37;padding:12px 16px;margin-top:20px;border-radius:0 8px 8px 0;font-size:12px;color:#999;line-height:1.8}
+.pause-badge{display:inline-block;background:#ff6b6b22;color:#ff6b6b;padding:2px 8px;border-radius:4px;font-size:12px;font-weight:600}
+@media(max-width:768px){body{padding:10px}table{font-size:11px}th,td{padding:6px 4px}.kpi-grid{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<h1>周会数据看板</h1>
+<p class="subtitle">Q1目标追踪 · 时间进度 89% · 数据更新于 2026年3月29日</p>
+
+<!-- KPI 概览 -->
+<div class="kpi-grid">
+  <div class="kpi-card">
+    <div class="kpi-value">121 / 175</div>
+    <div class="kpi-label">新增开户（Q1累计）</div>
+    <div class="progress-bar"><div class="progress-fill" style="width:69%"></div></div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-value">$44.0M</div>
+    <div class="kpi-label">量化新增AUM（Q1累计）</div>
+    <div class="progress-bar"><div class="progress-fill" style="width:44%"></div></div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-value">$86.1M</div>
+    <div class="kpi-label">量化存量AUM（当前）</div>
+    <div class="progress-bar"><div class="progress-fill" style="width:50%"></div></div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-value">$118.2M</div>
+    <div class="kpi-label">OTC-私行交易量（Q1累计）</div>
+    <div class="progress-bar"><div class="progress-fill" style="width:47%"></div></div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-value">$86.3M</div>
+    <div class="kpi-label">OTC-日港联动（Q1累计）</div>
+    <div class="progress-bar"><div class="progress-fill" style="width:86%"></div></div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-value">$2.16M</div>
+    <div class="kpi-label">打新认购量（Q1累计）</div>
+    <div class="progress-bar"><div class="progress-fill" style="width:27%"></div></div>
+  </div>
+</div>
+
+<!-- 1. 新增开户 -->
+<div class="section">
+  <div class="section-title">新增开户</div>
+  <p style="color:#888;font-size:13px;margin-bottom:12px">上周新增13户，OTC部贡献4户</p>
+  <table>
+    <thead><tr><th>分类</th><th>指标</th><th>合计</th><th>一部</th><th>二部</th><th>三部</th><th>OTC部</th></tr></thead>
+    <tbody>
+      <tr class="target-row"><td>目标</td><td>Q1目标</td><td>175</td><td>50</td><td>50</td><td>25</td><td>50</td></tr>
+      <tr class="total-row"><td></td><td>Q1累计完成</td><td>121</td><td>25</td><td>24</td><td>27</td><td>45</td></tr>
+      <tr class="rate-row"><td></td><td>完成率</td><td>69%</td><td>50%</td><td>48%</td><td>108%</td><td>90%</td></tr>
+      <tr><td>新增</td><td>03/23~03/29</td><td>13</td><td>3</td><td>3</td><td>3</td><td>4</td></tr>
+      <tr><td></td><td>03/16~03/22</td><td>11</td><td>2</td><td>1</td><td>3</td><td>5</td></tr>
+      <tr><td></td><td>03/09~03/15</td><td>12</td><td>0</td><td>1</td><td>8</td><td>3</td></tr>
+      <tr><td></td><td>03/02~03/08</td><td>9</td><td>2</td><td>2</td><td>0</td><td>5</td></tr>
+      <tr><td></td><td>02/23~03/01</td><td>8</td><td>1</td><td>3</td><td>0</td><td>4</td></tr>
+      <tr><td></td><td>02/16~02/22</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+      <tr><td></td><td>02/09~02/15</td><td>8</td><td>2</td><td>2</td><td>4</td><td>0</td></tr>
+      <tr><td></td><td>02/02~02/08</td><td>11</td><td>5</td><td>0</td><td>2</td><td>4</td></tr>
+      <tr><td></td><td>01/26~02/01</td><td>12</td><td>1</td><td>3</td><td>3</td><td>5</td></tr>
+      <tr><td></td><td>01/19~01/25</td><td>19</td><td>4</td><td>4</td><td>2</td><td>9</td></tr>
+      <tr><td></td><td>01/12~01/18</td><td>9</td><td>2</td><td>3</td><td>0</td><td>4</td></tr>
+      <tr><td></td><td>01/05~01/11</td><td>7</td><td>3</td><td>2</td><td>1</td><td>1</td></tr>
+      <tr><td></td><td>01/01~01/04</td><td>2</td><td>0</td><td>0</td><td>1</td><td>1</td></tr>
+    </tbody>
+  </table>
+</div>
+<!-- 2. 量化新增AUM -->
+<div class="section">
+  <div class="section-title">量化新增AUM</div>
+  <table>
+    <thead><tr><th>分类</th><th>指标</th><th>合计($)</th><th>币本位($)</th><th>U本位</th><th>一部</th><th>二部</th><th>三部</th><th>OTC部</th><th>员工内推</th><th>公司自营</th></tr></thead>
+    <tbody>
+      <tr class="target-row"><td>目标</td><td>Q1新增目标</td><td>$101.0M</td><td>-</td><td>-</td><td>$30.0M</td><td>$30.0M</td><td>$25.0M</td><td>$5.0M</td><td>$10.0M</td><td>$1.0M</td></tr>
+      <tr class="total-row"><td></td><td>Q1已完成</td><td>$44.0M</td><td>$28.5M</td><td>$15.5M</td><td>$4.1M</td><td>$4.4M</td><td>$21.4M</td><td>$0</td><td>$13.0M</td><td>$1.0M</td></tr>
+      <tr class="rate-row"><td></td><td>完成率</td><td>44%</td><td>-</td><td>-</td><td>14%</td><td>15%</td><td>86%</td><td>0%</td><td>-</td><td>-</td></tr>
+      <tr><td>新增</td><td>03/23~03/29</td><td>$0</td><td>$0</td><td>$0</td><td>$0</td><td>$0</td><td>$0</td><td>-</td><td>$0</td><td>$0</td></tr>
+      <tr><td></td><td>03/16~03/22</td><td>$2.1M</td><td>$0.6M</td><td>$1.5M</td><td>$0.5M</td><td>$1.0M</td><td>$0.6M</td><td>-</td><td>-</td><td>-</td></tr>
+      <tr><td></td><td>03/09~03/15</td><td>$0</td><td>$0</td><td>$0</td><td>$0</td><td>$0</td><td>$0</td><td>$0</td><td>$0</td><td>$0</td></tr>
+      <tr><td></td><td>03/02~03/08</td><td>$0</td><td>$0</td><td>$0</td><td>$0</td><td>$0</td><td>$0</td><td>$0</td><td>$0</td><td>$0</td></tr>
+      <tr><td></td><td>02/23~03/01</td><td>$5.0M</td><td>$0</td><td>$5.0M</td><td>$0</td><td>$0</td><td>$5.0M</td><td>$0</td><td>$0</td><td>$0</td></tr>
+      <tr><td></td><td>02/16~02/22</td><td>$0.7M</td><td>$0.7M</td><td>$0</td><td>$0.7M</td><td>$0</td><td>$0</td><td>$0</td><td>$0</td><td>$0</td></tr>
+      <tr><td></td><td>02/09~02/15</td><td>$0</td><td>$0</td><td>$0</td><td>$0</td><td>$0</td><td>$0</td><td>$0</td><td>$0</td><td>$0</td></tr>
+      <tr><td></td><td>02/02~02/08</td><td>$0</td><td>$0</td><td>$0</td><td>$0</td><td>$0</td><td>$0</td><td>$0</td><td>$0</td><td>$0</td></tr>
+      <tr><td></td><td>01/26~02/01</td><td>$3.7M</td><td>$3.7M</td><td>$0</td><td>$0</td><td>$2.9M</td><td>$0</td><td>$0</td><td>$0</td><td>$0.8M</td></tr>
+      <tr><td></td><td>01/19~01/25</td><td>$13.4M</td><td>$13.4M</td><td>$0</td><td>$0</td><td>$0</td><td>$2.4M</td><td>$0</td><td>$11.0M</td><td>$0</td></tr>
+      <tr><td></td><td>01/12~01/18</td><td>$15.9M</td><td>$8.9M</td><td>$7.0M</td><td>$0</td><td>$0.5M</td><td>$13.4M</td><td>$0</td><td>$2.0M</td><td>$0</td></tr>
+      <tr><td></td><td>01/01~01/11</td><td>$3.1M</td><td>$1.1M</td><td>$2.0M</td><td>$2.9M</td><td>$0</td><td>$0</td><td>$0</td><td>$0</td><td>$0.2M</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- 3. 量化存量AUM -->
+<div class="section">
+  <div class="section-title">量化存量AUM</div>
+  <p style="color:#888;font-size:13px;margin-bottom:12px">本周三部客户赎回约680万U，116个BTC，233个ETH</p>
+  <table>
+    <thead><tr><th>分类</th><th>指标</th><th>合计($)</th><th>币本位($)</th><th>U本位</th><th>一部</th><th>二部</th><th>三部</th><th>OTC部</th><th>员工内推</th><th>公司自营</th></tr></thead>
+    <tbody>
+      <tr class="target-row"><td>目标</td><td>Q1累计AUM目标</td><td>$170.5M</td><td>-</td><td>-</td><td>$50.0M</td><td>$43.0M</td><td>$25.0M</td><td>$5.0M</td><td>$27.9M</td><td>$19.6M</td></tr>
+      <tr class="total-row"><td></td><td>当前AUM（预估）</td><td>$86.1M</td><td>$27.8M</td><td>$58.2M</td><td>$20.2M</td><td>$11.8M</td><td>$6.6M</td><td>-</td><td>$27.9M</td><td>$19.6M</td></tr>
+      <tr class="rate-row"><td></td><td>完成率</td><td>50%</td><td>-</td><td>-</td><td>40%</td><td>28%</td><td>26%</td><td>0%</td><td>-</td><td>-</td></tr>
+      <tr><td>净增</td><td>03/23~03/29</td><td class="negative">-$15.3M</td><td class="negative">-$8.5M</td><td class="negative">-$6.8M</td><td>-</td><td>-</td><td class="negative">-$15.3M</td><td>-</td><td>-</td><td>-</td></tr>
+      <tr><td></td><td>03/16~03/22</td><td class="negative">-$3.4M</td><td>$0.6M</td><td class="negative">-$4.0M</td><td>$0.5M</td><td class="negative">-$23K</td><td>$0.6M</td><td>-</td><td class="negative">-$4.5M</td><td>-</td></tr>
+      <tr><td></td><td>03/09~03/15</td><td class="negative">-$3.5M</td><td class="negative">-$3.5M</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td class="negative">-$3.5M</td><td>-</td></tr>
+      <tr><td></td><td>03/02~03/08</td><td>$0</td><td>$0</td><td>$0</td><td>$0</td><td>$0</td><td>$0</td><td>$0</td><td>$0</td><td>$0</td></tr>
+      <tr><td></td><td>02/23~03/01</td><td>$5.0M</td><td>-</td><td>$5.0M</td><td>-</td><td>-</td><td>$5.0M</td><td>-</td><td>-</td><td>-</td></tr>
+      <tr><td></td><td>02/16~02/22</td><td>$0.7M</td><td>$0.7M</td><td>-</td><td>$0.7M</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
+      <tr><td></td><td>02/09~02/15</td><td>$7.8M</td><td>$3.3M</td><td>$4.5M</td><td>-</td><td class="negative">-$0.2M</td><td>-</td><td>-</td><td>$8.0M</td><td>-</td></tr>
+      <tr><td></td><td>02/02~02/08</td><td class="negative">-$15.9M</td><td class="negative">-$3.1M</td><td class="negative">-$12.8M</td><td class="negative">-$1.0M</td><td>$0</td><td class="negative">-$0.2M</td><td>$0</td><td class="negative">-$14.7M</td><td>-</td></tr>
+    </tbody>
+  </table>
+</div>
+<!-- 4. OTC-私行业务 -->
+<div class="section">
+  <div class="section-title">OTC-私行业务</div>
+  <p style="color:#888;font-size:13px;margin-bottom:12px">周交易量<span style="color:#ff6b6b;font-weight:700">925万</span>美金，OTC部贡献92%</p>
+  <table>
+    <thead><tr><th>分类</th><th>指标</th><th>合计</th><th>一部</th><th>二部</th><th>三部</th><th>OTC部</th><th>其他</th></tr></thead>
+    <tbody>
+      <tr class="target-row"><td>目标</td><td>Q1目标</td><td>$250.0M</td><td>$20.0M</td><td>$40.0M</td><td>$40.0M</td><td>$150.0M</td><td>-</td></tr>
+      <tr class="total-row"><td></td><td>Q1累计完成</td><td>$118.2M</td><td>$6.0M</td><td>$10.6M</td><td>$9.0M</td><td>$88.5M</td><td>$4.0M</td></tr>
+      <tr class="rate-row"><td></td><td>完成率</td><td>47%</td><td>30%</td><td>27%</td><td>22%</td><td>59%</td><td>-</td></tr>
+      <tr><td>新增</td><td>03/23~03/29</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
+      <tr><td></td><td>03/16~03/22</td><td>$9.3M</td><td>$225K</td><td>$50K</td><td>$430K</td><td>$8.5M</td><td>-</td></tr>
+      <tr><td></td><td>03/09~03/15</td><td>$21.5M</td><td>$560K</td><td>-</td><td>$383K</td><td>$20.6M</td><td>-</td></tr>
+      <tr><td></td><td>03/02~03/08</td><td>$11.2M</td><td>$1.6M</td><td>-</td><td>$1.6M</td><td>$8.0M</td><td>$11K</td></tr>
+      <tr><td></td><td>02/23~03/01</td><td>$7.7M</td><td>$1.0M</td><td>$80K</td><td>-</td><td>$6.6M</td><td>-</td></tr>
+      <tr><td></td><td>02/16~02/22</td><td>$147K</td><td>$100K</td><td>-</td><td>-</td><td>$47K</td><td>-</td></tr>
+      <tr><td></td><td>02/09~02/15</td><td>$16.6M</td><td>$151K</td><td>$5.5M</td><td>-</td><td>$11.0M</td><td>-</td></tr>
+      <tr><td></td><td>02/02~02/08</td><td>$9.7M</td><td>$337K</td><td>$150K</td><td>$4.2M</td><td>$2.0M</td><td>$3.0M</td></tr>
+      <tr><td></td><td>01/26~02/01</td><td>$4.9M</td><td>$183K</td><td>$200K</td><td>$100K</td><td>$4.4M</td><td>-</td></tr>
+      <tr><td></td><td>01/19~01/25</td><td>$13.0M</td><td>$1.0M</td><td>$2.9M</td><td>-</td><td>$9.1M</td><td>$1.0M</td></tr>
+      <tr><td></td><td>01/12~01/18</td><td>$9.0M</td><td>$38K</td><td>$500K</td><td>$2.1M</td><td>$6.4M</td><td>-</td></tr>
+      <tr><td></td><td>01/05~01/11</td><td>$3.7M</td><td>$811K</td><td>$1.3M</td><td>$249K</td><td>$1.4M</td><td>-</td></tr>
+      <tr><td></td><td>01/01~01/04</td><td>$10.4M</td><td>-</td><td>-</td><td>-</td><td>$10.4M</td><td>-</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- 5. OTC-日港联动（三部） -->
+<div class="section">
+  <div class="section-title">OTC-日港联动（三部）<span class="pause-badge" style="margin-left:12px">业务暂停</span></div>
+  <p style="color:#888;font-size:13px;margin-bottom:12px">日港联动业务受政策影响，业务暂停</p>
+  <table>
+    <thead><tr><th>分类</th><th>指标</th><th>三部交易量（日元折算美元）</th></tr></thead>
+    <tbody>
+      <tr class="target-row"><td>目标</td><td>Q1目标</td><td>$100.0M</td></tr>
+      <tr class="total-row"><td></td><td>Q1累计完成</td><td>$86.3M</td></tr>
+      <tr class="rate-row"><td></td><td>完成率</td><td>86%</td></tr>
+      <tr><td>新增</td><td>03/09~03/29</td><td>$0</td></tr>
+      <tr><td></td><td>03/02~03/08</td><td>$5.9M</td></tr>
+      <tr><td></td><td>02/23~03/01</td><td>$10.7M</td></tr>
+      <tr><td></td><td>02/16~02/22</td><td>$2.9M</td></tr>
+      <tr><td></td><td>02/09~02/15</td><td>$11.6M</td></tr>
+      <tr><td></td><td>02/02~02/08</td><td>$14.4M</td></tr>
+      <tr><td></td><td>01/26~02/01</td><td>$17.2M</td></tr>
+      <tr><td></td><td>01/19~01/25</td><td>$10.6M</td></tr>
+      <tr><td></td><td>01/12~01/18</td><td>$6.1M</td></tr>
+      <tr><td></td><td>01/05~01/11</td><td>$7.0M</td></tr>
+      <tr><td></td><td>01/01~01/04</td><td>$0</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- 6. 打新认购量 -->
+<div class="section">
+  <div class="section-title">打新认购量</div>
+  <table>
+    <thead><tr><th>分类</th><th>指标</th><th>合计</th><th>一部</th><th>二部</th><th>三部</th><th>OTC部</th></tr></thead>
+    <tbody>
+      <tr class="target-row"><td>目标</td><td>Q1累计AUM目标</td><td>$8.0M</td><td>$3.5M</td><td>$2.0M</td><td>$2.0M</td><td>$500K</td></tr>
+      <tr class="total-row"><td></td><td>当前销售AUM</td><td>$2.16M</td><td>$1.55M</td><td>$602K</td><td>$7.9K</td><td>$0</td></tr>
+      <tr class="rate-row"><td></td><td>完成率</td><td>27%</td><td>44%</td><td>30%</td><td>0.4%</td><td>0%</td></tr>
+      <tr><td>净新增</td><td>01/01~02/28</td><td>$2.16M</td><td>$1.55M</td><td>$602K</td><td>$7.9K</td><td>$0</td></tr>
+    </tbody>
+  </table>
+</div>
+<!-- 7. 毛利润预估--按业务划分 -->
+<div class="section">
+  <div class="section-title">毛利润预估 — 按业务划分</div>
+  <table>
+    <thead><tr><th>时间</th><th>合计</th><th>量化-币本位</th><th>量化-U本位</th><th>OTC-私行</th><th>打新</th><th>其他</th></tr></thead>
+    <tbody>
+      <tr class="target-row"><td>Q1目标（含存量）</td><td>$1,100K</td><td>$520K</td><td>-</td><td>$220K</td><td>$300K</td><td>$60K</td></tr>
+      <tr class="total-row"><td>已完成（含存量）</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>$0</td></tr>
+      <tr class="rate-row"><td>完成率</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>0%</td></tr>
+    </tbody>
+  </table>
+  <p style="color:#666;font-size:11px;margin-top:8px">* 部分数据含公式引用错误(#REF!)，以数据看板实际数据为准</p>
+</div>
+
+<!-- 8. 毛利润预估--按部门划分 -->
+<div class="section">
+  <div class="section-title">毛利润预估 — 按部门划分</div>
+  <table>
+    <thead><tr><th>指标</th><th></th><th>合计</th><th>一部</th><th>二部</th><th>三部</th><th>OTC部</th><th>员工内推</th><th>公司自营</th><th>其他</th></tr></thead>
+    <tbody>
+      <tr class="target-row"><td>目标</td><td>毛利目标</td><td>$1,100K</td><td>$250K</td><td>$250K</td><td>$250K</td><td>$220K</td><td>$130K</td><td>/</td><td>/</td></tr>
+      <tr class="total-row"><td></td><td>Q1预估</td><td>$632.9K</td><td>$135.2K</td><td>$68.7K</td><td>$106.8K</td><td>$88.5K</td><td>$128.9K</td><td>$100.7K</td><td>$4.0K</td></tr>
+      <tr class="rate-row"><td></td><td>完成率</td><td>58%</td><td>54%</td><td>27%</td><td>43%</td><td>40%</td><td>-</td><td>-</td><td>-</td></tr>
+      <tr><td>明细</td><td>量化</td><td>$462.9K</td><td>$92.0K</td><td>$43.6K</td><td>$97.6K</td><td>/</td><td>$128.9K</td><td>$100.7K</td><td>/</td></tr>
+      <tr><td></td><td>OTC</td><td>$118.2K</td><td>$6.0K</td><td>$10.6K</td><td>$9.0K</td><td>$88.5K</td><td>/</td><td>/</td><td>$4.0K</td></tr>
+      <tr><td></td><td>打新</td><td>$51.8K</td><td>$37.2K</td><td>$14.5K</td><td>$0.2K</td><td>/</td><td>/</td><td>/</td><td>/</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- 9. 收入/OTC手续费预估--按部门划分 -->
+<div class="section">
+  <div class="section-title">收入 / OTC手续费预估 — 按部门划分</div>
+  <table>
+    <thead><tr><th>指标</th><th></th><th>合计</th><th>一部</th><th>二部</th><th>三部</th><th>OTC部</th><th>员工内推</th><th>公司自营</th><th>其他</th></tr></thead>
+    <tbody>
+      <tr class="total-row"><td>完成</td><td>Q1预估</td><td>$725.8K</td><td>$150.9K</td><td>$75.7K</td><td>$153.3K</td><td>$111.7K</td><td>$128.9K</td><td>$100.7K</td><td>$4.6K</td></tr>
+      <tr><td>明细</td><td>量化</td><td>$462.9K</td><td>$92.0K</td><td>$43.6K</td><td>$97.6K</td><td>/</td><td>$128.9K</td><td>$100.7K</td><td>/</td></tr>
+      <tr><td></td><td>OTC-手续费</td><td>$168.6K</td><td>$21.7K</td><td>$17.6K</td><td>$13.0K</td><td>$111.7K</td><td>/</td><td>/</td><td>$4.6K</td></tr>
+      <tr><td></td><td>日港联动</td><td>$42.5K</td><td>/</td><td>/</td><td>$42.5K</td><td>/</td><td>/</td><td>/</td><td>/</td></tr>
+      <tr><td></td><td>打新</td><td>$51.8K</td><td>$37.2K</td><td>$14.5K</td><td>$0.2K</td><td>/</td><td>/</td><td>/</td><td>/</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- 数据计算口径 -->
+<div class="note">
+  <strong style="color:#d4af37">数据计算口径及规则</strong><br>
+  1. <strong>量化：</strong>量化毛利/收入预估 = AUM × 年化X%（币本位X=5%，U本位X=10%）× 时间权重(时间/365) × 25%分润<br>
+  2. <strong>OTC-私行：</strong><span style="color:#ff6b6b">OTC毛利润预估 = 交易量 × 10bps</span>（毛利=收入-调仓成本）；<span style="color:#ff6b6b">OTC收入预估 = 交易台账总手续费</span>（总手续费=交易量×(1-手续费)-银行转账）<br>
+  3. <strong>OTC-日港联动：</strong>暂不计入私行毛利润，收入 = 交易台账总手续费(日元) × 0.0064汇率<br>
+  4. <strong>Bitgo打新：</strong>认购金额 × 3% × 80%（100%-分给老虎的20%）<br>
+  5. <strong>数据获取：</strong>OTC+打新实时更新，<span style="color:#ff6b6b">量化每周六更新</span>
+</div>
+
+<div class="actions">
+  <button class="btn" onclick="copyAllTables()">复制所有表格</button>
+  <button class="btn btn-outline" onclick="downloadCSV()">下载 CSV</button>
+</div>
+
+<script>
+function copyAllTables(){
+  const tables=document.querySelectorAll('table');
+  let text='';
+  tables.forEach((t,i)=>{
+    const section=t.closest('.section');
+    const title=section?section.querySelector('.section-title').textContent:'';
+    text+='\n'+title+'\n';
+    const rows=t.querySelectorAll('tr');
+    rows.forEach(r=>{
+      const cells=r.querySelectorAll('th,td');
+      const vals=[];
+      cells.forEach(c=>vals.push(c.textContent.trim()));
+      text+=vals.join('\t')+'\n';
+    });
+    text+='\n';
+  });
+  navigator.clipboard.writeText(text).then(()=>{
+    alert('已复制所有表格到剪贴板！可直接粘贴到飞书/Excel');
+  }).catch(()=>{
+    const ta=document.createElement('textarea');
+    ta.value=text;document.body.appendChild(ta);ta.select();
+    document.execCommand('copy');document.body.removeChild(ta);
+    alert('已复制！');
+  });
+}
+function downloadCSV(){
+  const tables=document.querySelectorAll('table');
+  let csv='\uFEFF';
+  tables.forEach((t,i)=>{
+    const section=t.closest('.section');
+    const title=section?section.querySelector('.section-title').textContent:'';
+    csv+=title+'\n';
+    const rows=t.querySelectorAll('tr');
+    rows.forEach(r=>{
+      const cells=r.querySelectorAll('th,td');
+      const vals=[];
+      cells.forEach(c=>{
+        let v=c.textContent.trim().replace(/"/g,'""');
+        if(v.includes(',')||v.includes('\n'))v='"'+v+'"';
+        vals.push(v);
+      });
+      csv+=vals.join(',')+'\n';
+    });
+    csv+='\n';
+  });
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download='weekly_report_Q1.csv';
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+</script>
+</body>
+</html>
